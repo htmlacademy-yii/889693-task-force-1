@@ -65,7 +65,6 @@ class Task
         $actionStatusMap = [
             self::ACTION_CANCEL => self::STATUS_CANCELLED,
             self::ACTION_ACCEPT => self::STATUS_COMPLETED,
-            self::ACTION_RESPOND => self::STATUS_PROCEEDING,
             self::ACTION_REFUSE => self::STATUS_FAILED
         ];
 
