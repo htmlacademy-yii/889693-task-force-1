@@ -1,6 +1,6 @@
 <?php
 
-namespace Taskforce;
+namespace Taskforce\Logic;
 
 class Task
 {
