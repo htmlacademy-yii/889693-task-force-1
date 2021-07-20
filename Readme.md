@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Инна Клементьева](https://up.htmlacademy.ru/yii/1/user/889693).
-* Наставник: [Никита Дайнеко](https://htmlacademy.ru/profile/id1275155).
+* Наставник: [Денис Ходаковский](https://htmlacademy.ru/profile/id1232355).
 
 ---
 

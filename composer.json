@@ -1,0 +1,16 @@
+{
+  "name": "windseeking/taskforce",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Инна Клементьева",
+      "email": "windseeking2@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Taskforce\\": "src/"
+    }
+  },
+  "require": {}
+}
