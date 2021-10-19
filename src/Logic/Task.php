@@ -18,8 +18,8 @@ class Task
     const ACTION_REFUSE = 'refuse';
 
     // роли пользователей
-    const ROLE_REQUESTER = 'requester';
-    const ROLE_RESPONDER = 'responder';
+    const ROLE_EMPLOYER = 'employer';
+    const ROLE_EMPLOYEE = 'employee';
 
     // карта статусов
     private $statusesMap = [
@@ -38,13 +38,13 @@ class Task
         self::ACTION_REFUSE => 'Отказаться',
     ];
 
-    public $requesterID = null; // id заказчика
-    public $responderID = null; // id исполнителя
+    public $employerID = null; // id заказчика
+    public $employeeID = null; // id исполнителя
 
-    public function _construct(?int $requesterID, ?int $responderID)
+    public function _construct(?int $employerID, ?int $employeeID)
     {
-        $this->requesterID = $requesterID;
-        $this->responderID = $responderID;
+        $this->employerID = $employerID;
+        $this->employeeID = $employeeID;
     }
 
     // получение карты статусов
@@ -75,11 +75,11 @@ class Task
     public function getAvailableActions(string $userRole, string $currentStatus): ?string
     {
         $roleActionMap = [
-            self::ROLE_REQUESTER => [
+            self::ROLE_EMPLOYER => [
                 self::STATUS_NEW => self::ACTION_CANCEL,
                 self::STATUS_PROCEEDING => self::ACTION_ACCEPT,
             ],
-            self::ROLE_RESPONDER => [
+            self::ROLE_EMPLOYEE => [
                 self::STATUS_NEW => self::ACTION_RESPOND,
                 self::STATUS_PROCEEDING => self::ACTION_REFUSE,
             ]
