@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`categories`
 (
     `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name`       VARCHAR(30)  NOT NULL,
-    `icon_alias` VARCHAR(20)  NOT NULL,
+    `alias` VARCHAR(20)  NOT NULL,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB;
@@ -291,20 +291,20 @@ CREATE INDEX `reviews_customers_idx` ON `taskforce`.`reviews` (`customer_id` ASC
 
 
 -- -----------------------------------------------------
--- Table `taskforce`.`specialities`
+-- Table `taskforce`.`users_categories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `taskforce`.`specialities`
+CREATE TABLE IF NOT EXISTS `taskforce`.`users_categories`
 (
     `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_id`     INT UNSIGNED NOT NULL,
     `category_id` INT UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
-    CONSTRAINT `specialities_users_fk`
+    CONSTRAINT `users_categories_fk`
         FOREIGN KEY (`user_id`)
             REFERENCES `taskforce`.`users` (`id`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
-    CONSTRAINT `specialities_categories_fk`
+    CONSTRAINT `users_categories_fk`
         FOREIGN KEY (`category_id`)
             REFERENCES `taskforce`.`categories` (`id`)
             ON DELETE NO ACTION
@@ -312,9 +312,9 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`specialities`
 )
     ENGINE = InnoDB;
 
-CREATE INDEX `specialities_users_fk_idx` ON `taskforce`.`specialities` (`user_id` ASC) VISIBLE;
+CREATE INDEX `users_categories_fk_idx` ON `taskforce`.`users_categories` (`user_id` ASC) VISIBLE;
 
-CREATE INDEX `specialities_categories_idx` ON `taskforce`.`specialities` (`category_id` ASC) VISIBLE;
+CREATE INDEX `users_categories_idx` ON `taskforce`.`users_categories` (`category_id` ASC) VISIBLE;
 
 
 -- -----------------------------------------------------
