@@ -10,10 +10,10 @@ $asserts = array(
     assert($task->getNextStatus('cancel') == Task::STATUS_CANCELLED, 'status after cancel'),
     assert($task->getNextStatus('accept') == Task::STATUS_COMPLETED, 'status after accept'),
     assert($task->getNextStatus('refuse') == Task::STATUS_FAILED, 'status after refuse'),
-    assert($task->getAvailableActions('requester', 'new') == Task::ACTION_CANCEL, 'responder for new task'),
-    assert($task->getAvailableActions('requester', 'proceeding') == Task::ACTION_ACCEPT, 'requester for proceeding task'),
-    assert($task->getAvailableActions('responder', 'new') == Task::ACTION_RESPOND, 'responder for new task'),
-    assert($task->getAvailableActions('responder', 'proceeding') == Task::ACTION_REFUSE, 'responder for proceeding task')
+    assert($task->getAvailableActions('customer', 'new') == Task::ACTION_CANCEL, 'customer for new task'),
+    assert($task->getAvailableActions('customer', 'proceeding') == Task::ACTION_ACCEPT, 'customer for proceeding task'),
+    assert($task->getAvailableActions('executor', 'new') == Task::ACTION_RESPOND, 'executor for new task'),
+    assert($task->getAvailableActions('executor', 'proceeding') == Task::ACTION_REFUSE, 'executor for proceeding task')
 );
 
 if (!in_array(false, $asserts)) {

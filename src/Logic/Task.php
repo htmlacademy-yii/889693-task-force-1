@@ -2,6 +2,8 @@
 
 namespace Taskforce\Logic;
 
+use Taskforce\Logic\Action;
+
 class Task
 {
     // возможные статусы задания
@@ -18,8 +20,8 @@ class Task
     const ACTION_REFUSE = 'refuse';
 
     // роли пользователей
-    const ROLE_EMPLOYER = 'employer';
-    const ROLE_EMPLOYEE = 'employee';
+    const ROLE_CUSTOMER = 'customer';
+    const ROLE_EXECUTOR = 'executor';
 
     // карта статусов
     private $statusesMap = [
@@ -38,13 +40,15 @@ class Task
         self::ACTION_REFUSE => 'Отказаться',
     ];
 
-    public $employerID = null; // id заказчика
-    public $employeeID = null; // id исполнителя
+    public $customerID = null; // id заказчика
+    public $executorID = null; // id исполнителя
+    public $currentUserID = null; // id текущего пользователя
 
-    public function _construct(?int $employerID, ?int $employeeID)
+    public function _construct(?int $executorID, ?int $customerID, ?int $currentUserID)
     {
-        $this->employerID = $employerID;
-        $this->employeeID = $employeeID;
+        $this->executorID = $executorID;
+        $this->customerID = $customerID;
+        $this->currentUserID = $currentUserID;
     }
 
     // получение карты статусов
@@ -71,20 +75,29 @@ class Task
         return $actionStatusMap[$action] ?? null;
     }
 
-    // получение доступных действий для указанного статуса
-    public function getAvailableActions(string $userRole, string $currentStatus): ?string
+    // получение объекта класса доступного действия для указанного статуса и роли
+    public function getAvailableActions(string $currentStatus): ?Action
     {
-        $roleActionMap = [
-            self::ROLE_EMPLOYER => [
-                self::STATUS_NEW => self::ACTION_CANCEL,
-                self::STATUS_PROCEEDING => self::ACTION_ACCEPT,
-            ],
-            self::ROLE_EMPLOYEE => [
-                self::STATUS_NEW => self::ACTION_RESPOND,
-                self::STATUS_PROCEEDING => self::ACTION_REFUSE,
-            ]
-        ];
+        $action = Action::class;
 
-        return $roleActionMap[$userRole][$currentStatus] ?? null;
+        switch ($currentStatus) {
+            case self::STATUS_NEW:
+                if (RespondAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = RespondAction::class;
+                }
+                if (CancelAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = CancelAction::class;
+                }
+                break;
+            case self::STATUS_PROCEEDING:
+                if (AcceptAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = AcceptAction::class;
+                }
+                if (RefuseAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = RefuseAction::class;
+                }
+        }
+
+        return new $action() ?? null;
     }
 }
