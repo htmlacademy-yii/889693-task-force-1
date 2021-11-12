@@ -78,7 +78,7 @@ class Task
     // получение объекта класса доступного действия для указанного статуса и роли
     public function getAvailableActions(string $currentStatus): ?Action
     {
-        $action = Action::class;
+        $action = null;
 
         switch ($currentStatus) {
             case self::STATUS_NEW:
@@ -98,6 +98,9 @@ class Task
                 }
         }
 
-        return new $action() ?? null;
+        if ($action) {
+            return new $action();
+        }
+        return null;
     }
 }

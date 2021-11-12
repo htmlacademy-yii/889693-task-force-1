@@ -4,7 +4,16 @@ namespace Taskforce\Logic;
 
 abstract class Action
 {
-    abstract protected function getName(): string;
-    abstract protected function getAlias(): string;
+    protected $actionName = '';
+    protected $actionAlias = '';
+
+    protected function getName(): string {
+        return $this->actionName;
+    }
+
+    protected function getAlias(): string {
+        return $this->actionAlias;
+    }
+
     abstract protected static function isAllowed(?int $customerID, ?int $executorID, ?int $currentUserID): bool;
 }
