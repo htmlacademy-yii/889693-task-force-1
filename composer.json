@@ -12,5 +12,7 @@
       "Taskforce\\": "src/"
     }
   },
-  "require": {}
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  }
 }

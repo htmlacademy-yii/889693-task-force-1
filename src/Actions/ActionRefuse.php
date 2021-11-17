@@ -1,13 +1,11 @@
 <?php
 
+namespace Taskforce\Actions;
 
-namespace Taskforce\Logic;
-
-
-class RefuseAction extends Action
+class ActionRefuse extends Action
 {
-    protected $actionName = 'Отказаться';
-    protected $actionAlias = 'refuse';
+    protected string $actionName = 'Отказаться';
+    protected string $actionAlias = 'refuse';
 
     public static function isAllowed(?int $customerID, ?int $executorID, ?int $currentUserID): bool
     {

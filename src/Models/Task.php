@@ -1,8 +1,13 @@
 <?php
 
-namespace Taskforce\Logic;
+namespace Taskforce\Models;
 
-use Taskforce\Logic\Action;
+use Taskforce\Actions\Action;
+use Taskforce\Actions\ActionAccept;
+use Taskforce\Actions\ActionCancel;
+use Taskforce\Actions\ActionChooseExecutor;
+use Taskforce\Actions\ActionRefuse;
+use Taskforce\Actions\ActionRespond;
 
 class Task
 {
@@ -40,15 +45,17 @@ class Task
         self::ACTION_REFUSE => 'Отказаться',
     ];
 
-    public $customerID = null; // id заказчика
-    public $executorID = null; // id исполнителя
-    public $currentUserID = null; // id текущего пользователя
+    public ?int $customerID = null;
+    public ?int $executorID = null;
+    public ?int $currentUserID = null;
+    public ?string $currentStatus = '';
 
-    public function _construct(?int $executorID, ?int $customerID, ?int $currentUserID)
+    public function _construct(?int $executorID, ?int $customerID, ?int $currentUserID, ?string $currentStatus)
     {
         $this->executorID = $executorID;
         $this->customerID = $customerID;
         $this->currentUserID = $currentUserID;
+        $this->currentStatus = $currentStatus;
     }
 
     // получение карты статусов
@@ -76,30 +83,37 @@ class Task
     }
 
     // получение объекта класса доступного действия для указанного статуса и роли
-    public function getAvailableActions(string $currentStatus): ?Action
+    public function getAvailableActions(string $currentStatus)
     {
         $action = null;
+        $actions = null;
 
         switch ($currentStatus) {
             case self::STATUS_NEW:
-                if (RespondAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = RespondAction::class;
+                if (ActionRespond::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = ActionRespond::class;
                 }
-                if (CancelAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = CancelAction::class;
+                if (ActionCancel::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $actionCancel = new ActionCancel();
                 }
+                if (ActionChooseExecutor::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $actionChooseExecutor = new ActionChooseExecutor();
+                }
+                $actions = isset($actionCancel) && isset($actionChooseExecutor) ? [$actionCancel, $actionChooseExecutor] : null;
                 break;
             case self::STATUS_PROCEEDING:
-                if (AcceptAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = AcceptAction::class;
+                if (ActionAccept::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = ActionAccept::class;
                 }
-                if (RefuseAction::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = RefuseAction::class;
+                if (ActionRefuse::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $action = ActionRefuse::class;
                 }
         }
 
         if ($action) {
             return new $action();
+        } else if ($actions) {
+            return $actions;
         }
         return null;
     }

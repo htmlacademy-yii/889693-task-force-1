@@ -1,17 +1,17 @@
 <?php
 
-namespace Taskforce\Logic;
+namespace Taskforce\Actions;
 
 abstract class Action
 {
-    protected $actionName = '';
-    protected $actionAlias = '';
+    protected string $actionName = '';
+    protected string $actionAlias = '';
 
-    protected function getName(): string {
+    public function getName(): string {
         return $this->actionName;
     }
 
-    protected function getAlias(): string {
+    public function getAlias(): string {
         return $this->actionAlias;
     }
 
