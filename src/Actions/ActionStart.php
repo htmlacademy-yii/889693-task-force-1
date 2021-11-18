@@ -2,7 +2,7 @@
 
 namespace Taskforce\Actions;
 
-class ActionChooseExecutor
+class ActionStart
 {
     protected string $actionName = 'Принять';
     protected string $actionAlias = 'appoint';

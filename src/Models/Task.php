@@ -2,10 +2,9 @@
 
 namespace Taskforce\Models;
 
-use Taskforce\Actions\Action;
 use Taskforce\Actions\ActionAccept;
 use Taskforce\Actions\ActionCancel;
-use Taskforce\Actions\ActionChooseExecutor;
+use Taskforce\Actions\ActionStart;
 use Taskforce\Actions\ActionRefuse;
 use Taskforce\Actions\ActionRespond;
 
@@ -29,7 +28,7 @@ class Task
     const ROLE_EXECUTOR = 'executor';
 
     // карта статусов
-    private $statusesMap = [
+    const STATUSES_MAP = [
         self::STATUS_NEW => 'Новое',
         self::STATUS_CANCELLED => 'Отменённое',
         self::STATUS_PROCEEDING => 'В работе',
@@ -38,7 +37,7 @@ class Task
     ];
 
     // карта действий
-    private $actionsMap = [
+    const ACTIONS_MAP = [
         self::ACTION_CANCEL => 'Отменить',
         self::ACTION_RESPOND => 'Откликнуться',
         self::ACTION_ACCEPT => 'Выполнено',
@@ -50,7 +49,7 @@ class Task
     public ?int $currentUserID = null;
     public ?string $currentStatus = '';
 
-    public function _construct(?int $executorID, ?int $customerID, ?int $currentUserID, ?string $currentStatus)
+    public function __construct(?int $executorID, ?int $customerID, ?int $currentUserID, ?string $currentStatus)
     {
         $this->executorID = $executorID;
         $this->customerID = $customerID;
@@ -61,13 +60,13 @@ class Task
     // получение карты статусов
     public function getStatusesMap(): array
     {
-        return $this->statusesMap;
+        return self::STATUSES_MAP;
     }
 
     // получение карты действий
     public function getActionsMap(): array
     {
-        return $this->actionsMap;
+        return self::ACTIONS_MAP;
     }
 
     // получения статуса, в который задание перейдёт после выполнения указанного действия
@@ -83,38 +82,31 @@ class Task
     }
 
     // получение объекта класса доступного действия для указанного статуса и роли
-    public function getAvailableActions(string $currentStatus)
+    public function getAvailableActions(string $currentStatus): array
     {
-        $action = null;
-        $actions = null;
+        $actions = [];
 
         switch ($currentStatus) {
             case self::STATUS_NEW:
                 if (ActionRespond::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = ActionRespond::class;
+                    $actions[] = new ActionRespond;
                 }
                 if (ActionCancel::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $actionCancel = new ActionCancel();
+                    $actions[] = new ActionCancel();
                 }
-                if (ActionChooseExecutor::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $actionChooseExecutor = new ActionChooseExecutor();
+                if (ActionStart::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
+                    $actions[] = new ActionStart();
                 }
-                $actions = isset($actionCancel) && isset($actionChooseExecutor) ? [$actionCancel, $actionChooseExecutor] : null;
                 break;
             case self::STATUS_PROCEEDING:
                 if (ActionAccept::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = ActionAccept::class;
+                    $actions[] = new ActionAccept;
                 }
                 if (ActionRefuse::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
-                    $action = ActionRefuse::class;
+                    $actions[] = new ActionRefuse;
                 }
         }
 
-        if ($action) {
-            return new $action();
-        } else if ($actions) {
-            return $actions;
-        }
-        return null;
+        return $actions;
     }
 }
