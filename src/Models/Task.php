@@ -7,6 +7,8 @@ use Taskforce\Actions\ActionCancel;
 use Taskforce\Actions\ActionStart;
 use Taskforce\Actions\ActionRefuse;
 use Taskforce\Actions\ActionRespond;
+use Taskforce\Exceptions\ExceptionNotFound;
+use Taskforce\Exceptions\ExceptionInvalidData;
 
 class Task
 {
@@ -22,6 +24,7 @@ class Task
     const ACTION_RESPOND = 'respond';
     const ACTION_ACCEPT = 'accept';
     const ACTION_REFUSE = 'refuse';
+    const ACTION_START = 'appoint';
 
     // роли пользователей
     const ROLE_CUSTOMER = 'customer';
@@ -42,6 +45,14 @@ class Task
         self::ACTION_RESPOND => 'Откликнуться',
         self::ACTION_ACCEPT => 'Выполнено',
         self::ACTION_REFUSE => 'Отказаться',
+        self::ACTION_START => 'Принять',
+    ];
+
+    const ACTIONS_STATUS_MAP = [
+        self::ACTION_START => self::STATUS_PROCEEDING,
+        self::ACTION_CANCEL => self::STATUS_CANCELLED,
+        self::ACTION_ACCEPT => self::STATUS_COMPLETED,
+        self::ACTION_REFUSE => self::STATUS_FAILED
     ];
 
     public ?int $customerID = null;
@@ -49,7 +60,7 @@ class Task
     public ?int $currentUserID = null;
     public ?string $currentStatus = '';
 
-    public function __construct(?int $executorID, ?int $customerID, ?int $currentUserID, ?string $currentStatus)
+    public function __construct(?int $executorID, ?int $customerID, ?int $currentUserID, ?string $currentStatus = 'new')
     {
         $this->executorID = $executorID;
         $this->customerID = $customerID;
@@ -72,18 +83,20 @@ class Task
     // получения статуса, в который задание перейдёт после выполнения указанного действия
     public function getNextStatus(string $action): ?string
     {
-        $actionStatusMap = [
-            self::ACTION_CANCEL => self::STATUS_CANCELLED,
-            self::ACTION_ACCEPT => self::STATUS_COMPLETED,
-            self::ACTION_REFUSE => self::STATUS_FAILED
-        ];
+        if (!array_key_exists($action, self::ACTIONS_MAP)) {
+            throw new ExceptionInvalidData('Передано несуществующее действие ' . $action);
+        }
 
-        return $actionStatusMap[$action] ?? null;
+        return self::ACTIONS_STATUS_MAP[$action] ?? null;
     }
 
     // получение объекта класса доступного действия для указанного статуса и роли
     public function getAvailableActions(string $currentStatus): array
     {
+        if (!array_key_exists($currentStatus, self::STATUSES_MAP)) {
+            throw new ExceptionInvalidData('Передан несуществующий статус  ' . $currentStatus);
+        }
+
         $actions = [];
 
         switch ($currentStatus) {
@@ -105,6 +118,10 @@ class Task
                 if (ActionRefuse::isAllowed($this->customerID, $this->executorID, $this->currentUserID)) {
                     $actions[] = new ActionRefuse;
                 }
+        }
+
+        if (empty($actions)) {
+            throw new ExceptionNotFound('При статусе задания ' . $currentStatus . ' для пользователя id' . $this->currentUserID . ' доступных действий нет.');
         }
 
         return $actions;
